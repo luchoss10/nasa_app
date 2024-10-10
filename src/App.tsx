@@ -2,7 +2,10 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import { Slice } from './components/Slice';
 import { Grid } from './components/Grid';
-
+import {Button}from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 // const API_KEY = 'DEMO_KEY';
 const API_KEY = process.env.REACT_APP_NASA_API_KEY;
@@ -55,9 +58,14 @@ const toggleEndpoint = () => {
     <div className="App">
       <header className="App-header">
         <h1>NASA Photos </h1>
-        <button onClick={toggleEndpoint}>
+        <div style={{display: 'flex', justifyContent: 'sapace-between', gap:'20px'}}>
+        <Button onClick={toggleEndpoint} variant="contained">
           {isRoverPhotos ? 'APOD' : 'Curiosity Rover'}
-        </button>
+        </Button>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DatePicker />
+        </LocalizationProvider>
+        </div>
       </header>
       <Grid>
       {photos.map((photo, index) => (
