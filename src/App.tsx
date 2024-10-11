@@ -2,16 +2,16 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import { Slice } from './components/Slice';
 import { Grid } from './components/Grid';
-import {Button}from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs, { Dayjs } from 'dayjs';
+//import { LocalizationProvider } from '@mui/x-date-pickers';
+//import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+//import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import Header from './components/Header';
+import dayjs  from 'dayjs';
 
 // const API_KEY = 'DEMO_KEY';
 const API_KEY = process.env.REACT_APP_NASA_API_KEY;
 const APOD_API_URL = `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}`;
-const ROVER_API_URL = `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=10&api_key=${API_KEY}`;
+const ROVER_API_URL = `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?api_key=${API_KEY}`;
 
 interface Photo {
   title: string;
@@ -23,9 +23,9 @@ function App() {
 
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isRoverPhotos, setIsRoverPhotos] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   
-  console.log(selectedDate?.format('YYYY-MM-DD'));
+  console.log(selectedDate);
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -33,8 +33,8 @@ function App() {
         
         let url:string = isRoverPhotos ? ROVER_API_URL : APOD_API_URL;
         if (selectedDate) {
-            const formattedDate:string = selectedDate.format('YYYY-MM-DD');
-            const lastYearFormattedDate = selectedDate.subtract(1, 'month').format('YYYY-MM-DD');
+            const formattedDate:string = selectedDate;
+            const lastYearFormattedDate = dayjs(selectedDate).subtract(1, 'month').format('YYYY-MM-DD');
             
             url = isRoverPhotos ? `${url}&earth_date=${formattedDate}` : `${url}&end_date=${formattedDate}&start_date=${lastYearFormattedDate}`;
         } else {
@@ -59,7 +59,7 @@ function App() {
             `,
           })));
         } else {
-        setPhotos(data);
+            setPhotos(data);
         }
       } catch (error) {
         console.error('Error fetching data from NASA API', error);
@@ -73,23 +73,17 @@ const toggleEndpoint = () => {
   setIsRoverPhotos(!isRoverPhotos);
 };
 
+const handleDateChange = (formattedDate: string | null) => {
+    setSelectedDate(formattedDate);
+};
+
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>NASA Photos </h1>
-        <div style={{display: 'flex', justifyContent: 'sapace-between', gap:'20px'}}>
-        <Button onClick={toggleEndpoint} variant="contained">
-          {isRoverPhotos ? 'APOD' : 'Curiosity Rover'}
-        </Button>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker 
-                label="Date Selector" 
-                value={selectedDate}
-                onChange={setSelectedDate} 
-                />
-        </LocalizationProvider>
-        </div>
-      </header>
+      <Header
+        isRoverPhotos={isRoverPhotos}
+        toggleEndpoint={toggleEndpoint}
+        onDateChange={handleDateChange}
+        />
       <Grid>
       {photos.map((photo, index) => (
           <Slice
